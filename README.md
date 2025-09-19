@@ -37,18 +37,13 @@ https://aratama.github.io/mediashifter/
 - **フレームワーク**: Next.js 15.5.3 (React 19.1.0)
 - **スタイリング**: Tailwind CSS
 - **動画処理**: 
-  - WebCodecs API（H.264、VP8、VP9変換）
   - gif.js（GIF変換）
   - mediabunny（動画処理ライブラリ）
 - **言語**: TypeScript
 
 ## 📋 対応ブラウザ
 
-- **GIF変換**: すべてのモダンブラウザ
-- **動画変換（H.264、VP8、VP9）**: WebCodecs API対応ブラウザ
-  - Chrome 94+
-  - Edge 94+
-  - Opera 80+
+- すべてのモダンブラウザ
 
 ## 🔧 開発環境のセットアップ
 
@@ -104,11 +99,6 @@ bun build
 
 - GIF変換は最大10秒の動画に制限されています
 - 大きなファイルや高解像度の動画は変換に時間がかかる場合があります
-- WebCodecs APIを使用した変換は対応ブラウザでのみ利用可能です
-
-## 🤝 コントリビューション
-
-プルリクエストやイシューの報告を歓迎します。
 
 ## 📄 ライセンス
 
@@ -117,6 +107,5 @@ bun build
 ## 🔗 関連リンク
 
 - [Next.js Documentation](https://nextjs.org/docs)
-- [WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API)
 - [gif.js](https://github.com/jnordberg/gif.js)
 - [mediabunny](https://github.com/ThaUnknown/mediabunny)

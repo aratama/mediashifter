@@ -118,12 +118,6 @@ export default function VideoConverter() {
       return;
     }
 
-    // WebCodecs APIの対応確認
-    if (!("VideoEncoder" in window) || !("VideoDecoder" in window)) {
-      setError("お使いのブラウザはWebCodecs APIに対応していません");
-      return;
-    }
-
     setIsConverting(true);
     setProgress(0);
     setError("");
