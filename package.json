@@ -6,10 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "export": "next build && next export"
   },
   "dependencies": {
     "gif.js": "^0.2.0",
+    "mediabunny": "^1.17.2",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"

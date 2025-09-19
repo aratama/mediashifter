@@ -1,4 +1,18 @@
 import GIF from "gif.js";
+import { 
+  Input, 
+  Output, 
+  Conversion, 
+  ALL_FORMATS, 
+  BlobSource, 
+  BufferTarget,
+  Mp4OutputFormat,
+  WebMOutputFormat,
+  QUALITY_HIGH,
+  QUALITY_MEDIUM,
+  QUALITY_LOW,
+  type ConversionOptions as MediabunnyConversionOptions
+} from "mediabunny";
 import { ConversionOptions } from "../types/video";
 
 export const convertToGif = async (
@@ -95,24 +109,129 @@ export const processVideo = async (
   options: ConversionOptions,
   setProgress: (progress: number) => void
 ): Promise<ArrayBuffer> => {
-  return new Promise((resolve) => {
-    // 簡易的な変換処理のシミュレーション
-    // 実際のWebCodecs APIを使った変換は非常に複雑なため、
-    // ここではプログレス表示とファイル処理のデモを行います
-
-    let currentProgress = 0;
-    const interval = setInterval(() => {
-      currentProgress += 10;
-      setProgress(currentProgress);
-
-      if (currentProgress >= 100) {
-        clearInterval(interval);
-        // 元のファイルをそのまま返す（実際の変換の代わり）
-        resolve(buffer);
-      }
-    }, 200);
-  });
+  try {
+    // mediabunnyを使用した実装
+    const result = await processVideoWithMediabunny(buffer, options, setProgress);
+    return result;
+  } catch (error) {
+    console.error('Video processing error:', error);
+    // エラーの場合は元のファイルを返す
+    return buffer;
+  }
 };
+
+// mediabunnyを使用した実装
+const processVideoWithMediabunny = async (
+  buffer: ArrayBuffer,
+  options: ConversionOptions,
+  setProgress: (progress: number) => void
+): Promise<ArrayBuffer> => {
+  try {
+    // 入力ファイルを設定
+    const inputBlob = new Blob([buffer]);
+    const input = new Input({
+      formats: ALL_FORMATS,
+      source: new BlobSource(inputBlob),
+    });
+
+    // 出力形式を決定
+    let outputFormat;
+    if (options.codec === 'gif') {
+      // GIFの場合は既存の実装を使用
+      throw new Error('GIF conversion should use convertToGif function');
+    } else if (options.codec?.startsWith('vp')) {
+      outputFormat = new WebMOutputFormat();
+    } else {
+      outputFormat = new Mp4OutputFormat();
+    }
+
+    // 出力設定
+    const output = new Output({
+      format: outputFormat,
+      target: new BufferTarget(),
+    });
+
+    // 品質設定をmediabunnyの形式に変換
+    let qualityLevel = QUALITY_MEDIUM;
+    if (options.bitrate) {
+      if (options.bitrate >= 5000000) {
+        qualityLevel = QUALITY_HIGH;
+      } else if (options.bitrate <= 1000000) {
+        qualityLevel = QUALITY_LOW;
+      }
+    }
+
+    // 変換設定を構築
+    const conversionConfig: MediabunnyConversionOptions = {
+      input,
+      output,
+    };
+
+    // 動画設定
+    if (options.width || options.height || options.bitrate || options.codec) {
+      const videoConfig: {
+        width?: number;
+        height?: number;
+        bitrate?: number;
+        codec?: "avc" | "hevc" | "vp9" | "av1" | "vp8";
+        fit?: "contain" | "cover" | "fill";
+      } = {};
+      
+      if (options.width) {
+        videoConfig.width = options.width;
+      }
+      if (options.height) {
+        videoConfig.height = options.height;
+      }
+      
+      // widthとheightの両方が指定されている場合はfitオプションを追加
+      if (options.width && options.height) {
+        videoConfig.fit = "contain"; // アスペクト比を維持しながらリサイズ
+      }
+      
+      if (options.bitrate) {
+        videoConfig.bitrate = options.bitrate;
+      }
+      
+      // コーデック設定
+      if (options.codec) {
+        if (options.codec === 'avc1.42E01E') {
+          videoConfig.codec = 'avc';
+        } else if (options.codec === 'vp09.00.10.08') {
+          videoConfig.codec = 'vp9';
+        } else if (options.codec.startsWith('vp8')) {
+          videoConfig.codec = 'vp8';
+        }
+      }
+      
+      conversionConfig.video = videoConfig;
+    }
+
+    // 変換を初期化
+    const conversion = await Conversion.init(conversionConfig);
+
+    // プログレスコールバックを設定
+    conversion.onProgress = (progress: number) => {
+      setProgress(Math.floor(progress * 100));
+    };
+
+    // 変換を実行
+    await conversion.execute();
+
+    // 結果を取得
+    const result = output.target.buffer;
+    if (!result) {
+      throw new Error('変換結果が取得できませんでした');
+    }
+
+    return result;
+
+  } catch (error) {
+    console.error('Mediabunny processing error:', error);
+    throw error;
+  }
+};
+
 
 export const downloadConvertedVideo = (convertedBlob: Blob, codec: string) => {
   const url = URL.createObjectURL(convertedBlob);

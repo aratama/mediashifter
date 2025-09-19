@@ -36,7 +36,7 @@ export default function FileSelect({
         {selectedFile ? (
           <>
             <p>
-              選択されたファイル: {selectedFile.name} (
+              元のファイルのサイズ:  (
               {(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
             </p>
             {originalDimensions && (
