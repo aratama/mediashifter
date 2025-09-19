@@ -64,7 +64,7 @@ export default function ConvertedPreview({
               src={convertedUrl}
               controls
               className="max-w-full max-h-full rounded-lg"
-              style={{ objectFit: "contain" }}
+              style={{ objectFit: "contain", width: "100%", height: "100%" }}
             >
               お使いのブラウザは動画の再生に対応していません。
             </video>
@@ -79,11 +79,10 @@ export default function ConvertedPreview({
       <button
         onClick={onDownload}
         disabled={!convertedBlob}
-        className={`w-full mt-4 py-3 px-6 rounded-lg font-semibold transition-colors ${
-          convertedBlob
+        className={`w-full mt-4 py-3 px-6 rounded-lg font-semibold transition-colors ${convertedBlob
             ? "bg-green-600 text-white hover:bg-green-700"
             : "bg-gray-300 text-gray-500 cursor-not-allowed"
-        }`}
+          }`}
       >
         変換済み動画をダウンロード
       </button>

@@ -133,7 +133,7 @@ export default function ConversionSettings({
 
         <div></div>
 
-        {isVideoCodec && <div>
+        {(conversionOptions.codec === "gif" || isVideoCodec) && <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             幅 (px)
           </label>
@@ -148,7 +148,7 @@ export default function ConversionSettings({
           />
         </div>}
 
-        {isVideoCodec && <div>
+        {(conversionOptions.codec === "gif" || isVideoCodec) && <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             高さ (px)
           </label>

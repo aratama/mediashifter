@@ -6,11 +6,9 @@ import FileSelect from "./components/FileSelect";
 import ConversionSettings from "./components/ConversionSettings";
 import ConvertedPreview from "./components/ConvertedPreview";
 import NoticesSection from "./components/NoticesSection";
-import {
-  convertToGif,
-  processVideo,
-  downloadConvertedVideo,
-} from "./utils/videoConverter";
+import { processVideo, } from "./utils/video";
+import { convertToGif } from "./utils/image";
+import { downloadConvertedVideo } from "./utils/download";
 
 export default function VideoConverter() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

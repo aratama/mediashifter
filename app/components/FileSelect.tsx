@@ -60,7 +60,7 @@ export default function FileSelect({
             ref={videoRef}
             src={previewUrl}
             controls
-            className="max-w-full max-h-full rounded-lg"
+            className="max-w-full max-h-full rounded-lg w-full h-full"
             style={{ objectFit: "contain" }}
           >
             お使いのブラウザは動画の再生に対応していません。

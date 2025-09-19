@@ -1,22 +1,3 @@
-export interface ConversionOptions {
-  codec: string;
-  bitrate: number;
-  width?: number;
-  height?: number;
-  fps?: number; // GIF用のフレームレート
-  quality?: number; // GIF用の品質
-}
-
-export interface Dimensions {
-  width: number;
-  height: number;
-}
-
-export interface SupportedCodec {
-  value: string;
-  label: string;
-}
-
 export const supportedCodecs: SupportedCodec[] = [
   { value: "gif", label: "GIFアニメーション" },
   // Video formats
@@ -38,3 +19,34 @@ export const supportedCodecs: SupportedCodec[] = [
   { value: "ogg", label: "OGG" },
   { value: "adts", label: "ADTS" },
 ];
+
+export type Codec = typeof supportedCodecs[number]["value"];
+
+export interface ConversionOptions {
+  codec: Codec;
+  bitrate: number;
+  width?: number;
+  height?: number;
+  fps?: number; // GIF用のフレームレート
+  quality?: number; // GIF用の品質
+}
+
+export interface Dimensions {
+  width: number;
+  height: number;
+}
+
+export interface SupportedCodec {
+  value: string;
+  label: string;
+}
+
+export function isAudioCodec(codec: Codec): boolean {
+  const audioCodecs = ['aac', 'mp3', 'opus', 'vorbis', 'flac', 'pcm', 'wav', 'ogg', 'adts'];
+  return audioCodecs.includes(codec);
+}
+
+export function isVideoCodec(codec: Codec): boolean {
+  const videoCodecs = ['avc', 'hevc', 'vp8', 'vp9', 'av1-mp4', 'av1-webm'];
+  return videoCodecs.includes(codec);
+}
