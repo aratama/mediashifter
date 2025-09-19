@@ -59,6 +59,20 @@ export default function ConversionSettings({
     onOptionsChange({ ...conversionOptions, ...updates });
   };
 
+  const isVideoCodec = supportedCodecs
+    .filter((codec) =>
+      [
+        "avc",
+        "hevc",
+        "vp8",
+        "vp9",
+        "av1-mp4",
+        "av1-webm",
+      ].includes(codec.value)
+    )
+    .map((codec) => codec.value)
+    .includes(conversionOptions.codec);
+
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
       <h2 className="text-xl font-semibold mb-4 text-gray-700">変換設定</h2>
@@ -92,15 +106,34 @@ export default function ConversionSettings({
             }
             className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
           >
-            {supportedCodecs.map((codec) => (
-              <option key={codec.value} value={codec.value}>
-                {codec.label}
-              </option>
-            ))}
+            <optgroup label="画像">
+              <option value="gif">アニメーションGIF</option>
+            </optgroup>
+            <optgroup label="動画">
+              <option value="avc">H.264 (MP4)</option>
+              <option value="hevc">H.265 (MP4)</option>
+              <option value="vp8">VP8 (WebM)</option>
+              <option value="vp9">VP9 (WebM)</option>
+              <option value="av1-mp4">AV1 (MP4)</option>
+              <option value="av1-webm">AV1 (WebM)</option>
+            </optgroup>
+            <optgroup label="音声">
+              <option value="aac">AAC (MP4)</option>
+              <option value="mp3">MP3</option>
+              <option value="opus">Opus (WebM)</option>
+              <option value="vorbis">Vorbis (Ogg)</option>
+              <option value="flac">FLAC</option>
+              <option value="pcm">PCM (WAV)</option>
+              <option value="wav">WAV</option>
+              <option value="ogg">OGG</option>
+              <option value="adts">ADTS</option>
+            </optgroup>
           </select>
         </div>
 
-        <div>
+        <div></div>
+
+        {isVideoCodec && <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             幅 (px)
           </label>
@@ -113,9 +146,9 @@ export default function ConversionSettings({
             }
             className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
           />
-        </div>
+        </div>}
 
-        <div>
+        {isVideoCodec && <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             高さ (px)
           </label>
@@ -128,7 +161,7 @@ export default function ConversionSettings({
             }
             className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
           />
-        </div>
+        </div>}
 
         {conversionOptions.codec === "gif" ? (
           <div>
@@ -173,10 +206,8 @@ export default function ConversionSettings({
             </select>
           </div>
         )}
-      </div>
 
-      {conversionOptions.codec === "gif" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        {conversionOptions.codec === "gif" && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               品質 (低いほど高品質)
@@ -197,8 +228,8 @@ export default function ConversionSettings({
               <option value={20}>低品質</option>
             </select>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <button
         onClick={onConvert}

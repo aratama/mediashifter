@@ -1,0 +1,25 @@
+{
+  "name": "MediaShifter - ブラウザで動画変換",
+  "short_name": "MediaShifter",
+  "description": "ブラウザ上で動画ファイルを様々な形式に変換できる無料のWebアプリケーション",
+  "icons": [
+    {
+      "src": "/mediashifter/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/mediashifter/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "start_url": "/mediashifter/",
+  "scope": "/mediashifter/",
+  "categories": ["utilities", "productivity"],
+  "lang": "ja"
+}

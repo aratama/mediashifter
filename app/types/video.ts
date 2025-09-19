@@ -19,7 +19,22 @@ export interface SupportedCodec {
 
 export const supportedCodecs: SupportedCodec[] = [
   { value: "gif", label: "GIFアニメーション" },
-  { value: "avc1.42E01E", label: "H.264 (MP4)" },
+  // Video formats
+  { value: "avc", label: "H.264 (MP4)" },
+  { value: "hevc", label: "H.265 (MP4)" },
   { value: "vp8", label: "VP8 (WebM)" },
-  { value: "vp09.00.10.08", label: "VP9 (WebM)" },
+  { value: "vp9", label: "VP9 (WebM)" },
+  { value: "av1-mp4", label: "AV1 (MP4)" },
+  { value: "av1-webm", label: "AV1 (WebM)" },
+  // Audio formats
+  { value: "aac", label: "AAC (MP4)" },
+  { value: "mp3", label: "MP3" },
+  { value: "opus", label: "Opus (WebM)" },
+  { value: "vorbis", label: "Vorbis (Ogg)" },
+  { value: "flac", label: "FLAC" },
+  { value: "pcm", label: "PCM (WAV)" },
+  // Container formats (for audio-only)
+  { value: "wav", label: "WAV" },
+  { value: "ogg", label: "OGG" },
+  { value: "adts", label: "ADTS" },
 ];

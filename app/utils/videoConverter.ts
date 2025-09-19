@@ -1,13 +1,16 @@
 import GIF from "gif.js";
-import { 
-  Input, 
-  Output, 
-  Conversion, 
-  ALL_FORMATS, 
-  BlobSource, 
+import {
+  Input,
+  Output,
+  Conversion,
+  ALL_FORMATS,
+  BlobSource,
   BufferTarget,
   Mp4OutputFormat,
   WebMOutputFormat,
+  WavOutputFormat,
+  OggOutputFormat,
+  FlacOutputFormat,
   QUALITY_HIGH,
   QUALITY_MEDIUM,
   QUALITY_LOW,
@@ -139,9 +142,23 @@ const processVideoWithMediabunny = async (
     if (options.codec === 'gif') {
       // GIFの場合は既存の実装を使用
       throw new Error('GIF conversion should use convertToGif function');
-    } else if (options.codec?.startsWith('vp')) {
+    } else if (['wav', 'pcm'].includes(options.codec)) {
+      // WAV format
+      outputFormat = new WavOutputFormat();
+    } else if (['ogg', 'vorbis'].includes(options.codec)) {
+      // OGG format for Vorbis
+      outputFormat = new OggOutputFormat();
+    } else if (options.codec === 'flac') {
+      // FLAC format
+      outputFormat = new FlacOutputFormat();
+    } else if (['vp8', 'vp9', 'av1-webm', 'opus'].includes(options.codec)) {
+      // WebM format for VP8, VP9, AV1-WebM, Opus
       outputFormat = new WebMOutputFormat();
+    } else if (options.codec === 'adts') {
+      // ADTS format - use MP4 container for AAC
+      outputFormat = new Mp4OutputFormat();
     } else {
+      // Default to MP4 for avc, hevc, av1-mp4, aac, mp3
       outputFormat = new Mp4OutputFormat();
     }
 
@@ -167,8 +184,9 @@ const processVideoWithMediabunny = async (
       output,
     };
 
-    // 動画設定
-    if (options.width || options.height || options.bitrate || options.codec) {
+    // 動画設定（動画コーデックの場合）
+    const videoCodecs = ['avc', 'hevc', 'vp8', 'vp9', 'av1-mp4', 'av1-webm'];
+    if (videoCodecs.includes(options.codec) && (options.width || options.height || options.bitrate)) {
       const videoConfig: {
         width?: number;
         height?: number;
@@ -176,35 +194,53 @@ const processVideoWithMediabunny = async (
         codec?: "avc" | "hevc" | "vp9" | "av1" | "vp8";
         fit?: "contain" | "cover" | "fill";
       } = {};
-      
+
       if (options.width) {
         videoConfig.width = options.width;
       }
       if (options.height) {
         videoConfig.height = options.height;
       }
-      
+
       // widthとheightの両方が指定されている場合はfitオプションを追加
       if (options.width && options.height) {
         videoConfig.fit = "contain"; // アスペクト比を維持しながらリサイズ
       }
-      
+
       if (options.bitrate) {
         videoConfig.bitrate = options.bitrate;
       }
-      
+
       // コーデック設定
-      if (options.codec) {
-        if (options.codec === 'avc1.42E01E') {
-          videoConfig.codec = 'avc';
-        } else if (options.codec === 'vp09.00.10.08') {
-          videoConfig.codec = 'vp9';
-        } else if (options.codec.startsWith('vp8')) {
-          videoConfig.codec = 'vp8';
-        }
+      if (options.codec === 'av1-mp4' || options.codec === 'av1-webm') {
+        videoConfig.codec = 'av1';
+      } else {
+        videoConfig.codec = options.codec as "avc" | "hevc" | "vp9" | "vp8";
       }
-      
+
       conversionConfig.video = videoConfig;
+    }
+
+    // 音声設定（音声コーデックの場合）
+    const audioCodecs = ['aac', 'mp3', 'opus', 'vorbis', 'flac', 'pcm', 'wav', 'ogg', 'adts'];
+    if (audioCodecs.includes(options.codec)) {
+      const audioConfig: {
+        bitrate?: number;
+        codec?: "aac" | "mp3" | "opus" | "vorbis" | "flac" | "pcm-s16";
+      } = {};
+
+      if (options.bitrate) {
+        audioConfig.bitrate = options.bitrate;
+      }
+
+      // PCMの場合は具体的なフォーマットを指定
+      if (options.codec === 'pcm') {
+        audioConfig.codec = 'pcm-s16';
+      } else {
+        audioConfig.codec = options.codec as "aac" | "mp3" | "opus" | "vorbis" | "flac";
+      }
+
+      conversionConfig.audio = audioConfig;
     }
 
     // 変換を初期化
@@ -239,13 +275,57 @@ export const downloadConvertedVideo = (convertedBlob: Blob, codec: string) => {
   a.href = url;
 
   let extension = "mp4";
-  if (codec === "gif") {
-    extension = "gif";
-  } else if (codec.startsWith("vp")) {
-    extension = "webm";
+  let filename = "converted_media";
+
+  // 拡張子とファイル名を決定
+  switch (codec) {
+    case "gif":
+      extension = "gif";
+      filename = "converted_animation";
+      break;
+    case "vp8":
+    case "vp9":
+    case "av1-webm":
+    case "opus":
+      extension = "webm";
+      filename = "converted_video";
+      break;
+    case "vorbis":
+    case "ogg":
+      extension = "ogg";
+      filename = "converted_audio";
+      break;
+    case "mp3":
+      extension = "mp3";
+      filename = "converted_audio";
+      break;
+    case "flac":
+      extension = "flac";
+      filename = "converted_audio";
+      break;
+    case "wav":
+    case "pcm":
+      extension = "wav";
+      filename = "converted_audio";
+      break;
+    case "adts":
+      extension = "aac";
+      filename = "converted_audio";
+      break;
+    case "aac":
+      extension = "m4a";
+      filename = "converted_audio";
+      break;
+    case "avc":
+    case "hevc":
+    case "av1-mp4":
+    default:
+      extension = "mp4";
+      filename = "converted_video";
+      break;
   }
 
-  a.download = `converted_video.${extension}`;
+  a.download = `${filename}.${extension}`;
 
   document.body.appendChild(a);
   a.click();

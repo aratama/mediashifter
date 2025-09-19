@@ -40,7 +40,7 @@ export default function VideoConverter() {
   const handleFileSelect = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
-      if (file && file.type.startsWith("video/")) {
+      if (file && (file.type.startsWith("video/") || file.type.startsWith("audio/"))) {
         setSelectedFile(file);
         setError("");
 
@@ -75,7 +75,7 @@ export default function VideoConverter() {
           }));
         });
       } else {
-        setError("動画ファイルを選択してください");
+        setError("動画または音声ファイルを選択してください");
       }
     },
     [previewUrl, convertedUrl]
@@ -130,9 +130,23 @@ export default function VideoConverter() {
         setProgress
       );
 
-      const mimeType = conversionOptions.codec.startsWith("vp")
-        ? "video/webm"
-        : "video/mp4";
+      // 適切なMIMEタイプを決定
+      let mimeType = "video/mp4"; // デフォルト
+
+      if (['vp8', 'vp9', 'av1-webm', 'opus'].includes(conversionOptions.codec)) {
+        mimeType = "video/webm";
+      } else if (['wav', 'pcm'].includes(conversionOptions.codec)) {
+        mimeType = "audio/wav";
+      } else if (['ogg', 'vorbis'].includes(conversionOptions.codec)) {
+        mimeType = "audio/ogg";
+      } else if (conversionOptions.codec === 'flac') {
+        mimeType = "audio/flac";
+      } else if (conversionOptions.codec === 'mp3') {
+        mimeType = "audio/mpeg";
+      } else if (['aac', 'adts'].includes(conversionOptions.codec)) {
+        mimeType = "audio/aac";
+      }
+
       const blob = new Blob([convertedBuffer], { type: mimeType });
       setConvertedBlob(blob);
 
